@@ -1,0 +1,10 @@
+[package]
+name = "miladyfetch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sysinfo = "0.33.1"
+systemstat = "0.2.4"
+users = "0.11.0"
+whoami = "1.5.2"
