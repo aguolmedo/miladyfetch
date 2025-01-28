@@ -9,8 +9,8 @@ pub struct SystemInfo {
     pub username: String,
     pub total_memory: u64,
     pub used_memory: u64,
-    pub system_name: Option<String>,
-    pub kernel_version: Option<String>,
+    pub system_name: String,
+    pub kernel_version: String,
     pub cpu_info: String,
 }
 
@@ -30,8 +30,8 @@ impl SystemInfo {
             username: whoami::username(),
             total_memory: sys.total_memory(),
             used_memory: sys.used_memory(),
-            system_name: Some(String::from(env::consts::OS)),
-            kernel_version: Some(kernel),
+            system_name: String::from(env::consts::OS),
+            kernel_version: kernel,
             cpu_info: sys.cpus().first().map(|cpu| cpu.brand()).unwrap().to_string(),
         }
     }

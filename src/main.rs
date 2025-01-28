@@ -10,19 +10,14 @@ fn main() {
 
     let sys_info = SystemInfo::new();
     
-    let system_name: String = format!("{}", sys_info.system_name.unwrap());
-    let kernel_version = format!("Kernel: {}", sys_info.kernel_version.unwrap_or("Unknown".to_string()).replace("\"", ""));
+    let system_name: String = format!("{}", sys_info.system_name);
+    let kernel_version = format!("Kernel: {}", sys_info.kernel_version.replace("\"", ""));
     let memory = format!(
         "{} MB / {} MB",
         sys_info.used_memory / 1048576,
         sys_info.total_memory / 1048576
     );
-
-
-
-
-
-     // Print side-by-side ASCII art and system info
+     
      for (i, line) in ascii_art.iter().enumerate() {
         match i {
             5 => println!("{}   {}@{}", line, sys_info.username, sys_info.hostname),
