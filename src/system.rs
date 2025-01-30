@@ -1,5 +1,7 @@
 
+use pollster;
 use whoami;
+use wgpu;
 use sysinfo::System;
 use std::env;
 use std::fs;
@@ -12,6 +14,7 @@ pub struct SystemInfo {
     pub system_name: String,
     pub kernel_version: String,
     pub cpu_info: String,
+    pub gpu_name: String,
 }
 
 impl SystemInfo {
@@ -25,6 +28,19 @@ impl SystemInfo {
             .trim()
             .to_string();
 
+            let instance = wgpu::Instance::default();
+
+            // Request an adapter
+            let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::HighPerformance,
+                compatible_surface: None,
+                force_fallback_adapter: false,
+            }))
+            .expect("Failed to find an appropriate adapter");
+        
+
+        
+        
         SystemInfo {
             hostname: whoami::fallible::hostname().unwrap(),
             username: whoami::username(),
@@ -33,13 +49,9 @@ impl SystemInfo {
             system_name: String::from(env::consts::OS),
             kernel_version: kernel,
             cpu_info: sys.cpus().first().map(|cpu| cpu.brand()).unwrap().to_string(),
+            gpu_name: adapter.get_info().name.split("(").next().unwrap().to_string(),
+        
         }
-    }
 
+    }   
 }
-
-
-
-
-
-

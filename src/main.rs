@@ -25,6 +25,7 @@ fn main() {
             8 => println!("{}   {}", line, kernel_version),
             9 => println!("{}   Memory: {}", line, memory),
             10 => println!("{}   CPU: {}", line, sys_info.cpu_info),
+            11 => println!("{}   GPU: {}", line, sys_info.gpu_name),
 
             _ => println!("{}", line),
         }
