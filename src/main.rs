@@ -22,10 +22,11 @@ fn main() {
         match i {
             5 => println!("{}   {}@{}", line, sys_info.username, sys_info.hostname),
             7 => println!("{}   OS: {}", line, system_name),
-            8 => println!("{}   {}", line, kernel_version),
+            8 => println!("{}   {}\x1B[K", line, kernel_version),
             9 => println!("{}   Memory: {}", line, memory),
-            10 => println!("{}   CPU: {}", line, sys_info.cpu_info),
-            11 => println!("{}   GPU: {}", line, sys_info.gpu_name),
+            10 => println!("{}   CPU: {}\x1B[K", line, sys_info.cpu_info),
+            11 => println!("{}   GPU: {}\x1B[K", line, sys_info.gpu_name),
+            12 => println!("{}   Uptime: {}", line, sys_info.uptime),
 
             _ => println!("{}", line),
         }
