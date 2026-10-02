@@ -38,7 +38,6 @@ fn main() {
     info.extend(sys_info.battery);
     info.extend(field("Locale", sys_info.locale));
 
-    // Start the info a bit below the top of the art, like before.
     let offset = 1;
     let rows = ascii_art.len().max(info.len() + offset);
     for i in 0..rows {

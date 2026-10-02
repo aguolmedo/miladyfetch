@@ -150,7 +150,6 @@ fn get_packages() -> Option<String> {
     if counts.is_empty() { None } else { Some(counts.join(", ")) }
 }
 
-/// Extracts the first version-looking token, e.g. "GNU bash, version 5.3.15(1)-release" -> "5.3.15".
 fn parse_version(text: &str) -> Option<String> {
     text.lines().next()?
         .split_whitespace()
@@ -200,7 +199,6 @@ fn gtk_value(settings: &str, key: &str) -> Option<String> {
     })
 }
 
-/// "Adwaita Sans 13" -> "Adwaita Sans (13pt) [GTK3]"
 fn format_gtk_font(font: &str) -> String {
     match font.rsplit_once(' ') {
         Some((family, size)) if size.parse::<f32>().is_ok() => format!("{} ({}pt) [GTK3]", family, size),
@@ -208,7 +206,6 @@ fn format_gtk_font(font: &str) -> String {
     }
 }
 
-/// Walks up the process tree, skipping shells and wrappers, to find the terminal emulator.
 fn find_terminal(sys: &System) -> Option<String> {
     let mut pid: Pid = sysinfo::get_current_pid().ok()?;
     while let Some(process) = sys.process(pid) {
@@ -237,7 +234,6 @@ fn get_terminal_font(name: &str) -> Option<String> {
     let config = env::var("XDG_CONFIG_HOME").unwrap_or_else(|_| format!("{}/.config", home));
     let text = fs::read_to_string(format!("{}/alacritty/alacritty.toml", config)).unwrap_or_default();
 
-    // Minimal TOML scan: track the current [section] and pick font keys.
     let mut section = String::new();
     let (mut family, mut style, mut size) = (None, None, None);
     for line in text.lines().map(str::trim) {
@@ -275,7 +271,6 @@ fn count_cpu_list(path: &str) -> Option<usize> {
 fn get_cpu(sys: &System) -> String {
     let brand = sys.cpus().first().map(|cpu| cpu.brand().trim().to_string()).unwrap_or_default();
 
-    // Hybrid Intel CPUs expose P / E / LP-E core lists separately.
     let hybrid: Vec<String> = ["cpu_core", "cpu_atom", "cpu_lowpower"]
         .iter()
         .filter_map(|t| count_cpu_list(&format!("/sys/devices/{}/cpus", t)))
@@ -306,7 +301,6 @@ fn get_gpu() -> Option<String> {
     }))?;
     let info = adapter.get_info();
 
-    // Prefer the marketing name from pci.ids; the driver name is often generic ("Intel(R) Graphics (ARL)").
     let name = pci_gpu_name().unwrap_or_else(|| {
         let mut name = info.name.replace("(R)", "").replace("(TM)", "");
         if let Some(i) = name.find(" (") { name.truncate(i); }
@@ -360,7 +354,6 @@ fn pci_gpu_name() -> Option<String> {
                 "1002" => "AMD".to_string(),
                 _ => vendor_name.unwrap_or_default(),
             };
-            // "Arrow Lake-P [Arc Pro 130T/140T]" -> "Arc Pro 130T/140T"
             let model = match (rest.rfind('['), rest.rfind(']')) {
                 (Some(a), Some(b)) if a < b => &rest[a + 1..b],
                 _ => rest,
@@ -375,14 +368,12 @@ fn edid_name(edid: &[u8]) -> Option<String> {
     if edid.len() < 128 {
         return None;
     }
-    // Monitor name descriptor (tag 0xFC) in one of the four 18-byte descriptors.
     for d in edid[54..126].chunks(18) {
         if d[0] == 0 && d[1] == 0 && d[3] == 0xFC {
             let name = String::from_utf8_lossy(&d[5..18]).trim().to_string();
             if !name.is_empty() { return Some(name); }
         }
     }
-    // Fallback: 3-letter manufacturer ID + product code, e.g. "SDC419D".
     let m = u16::from_be_bytes([edid[8], edid[9]]);
     let letter = |shift: u16| (((m >> shift) & 0x1F) as u8 + b'A' - 1) as char;
     let product = u16::from_le_bytes([edid[10], edid[11]]);
@@ -446,7 +437,6 @@ fn get_displays() -> Vec<String> {
 }
 
 fn get_disk() -> Option<String> {
-    // df counts reserved blocks as used, matching what fastfetch shows.
     if let Some(out) = run("df", &["-B1", "--output=size,used,fstype", "/"]) {
         let cols: Vec<&str> = out.lines().nth(1).unwrap_or("").split_whitespace().collect();
         if let [size, used, fstype] = cols[..] {
