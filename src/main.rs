@@ -1,13 +1,8 @@
 use system::SystemInfo;
+pub mod animation;
 pub mod system;
 
 fn main() {
-
-    let ascii_art = include_str!("ascii.txt")
-        .lines()
-        .map(|s| s.to_string())
-        .collect::<Vec<String>>();
-    let art_width = ascii_art.iter().map(|l| l.chars().count()).max().unwrap_or(0);
 
     let sys_info = SystemInfo::new();
 
@@ -38,11 +33,5 @@ fn main() {
     info.extend(sys_info.battery);
     info.extend(field("Locale", sys_info.locale));
 
-    let offset = 1;
-    let rows = ascii_art.len().max(info.len() + offset);
-    for i in 0..rows {
-        let art = ascii_art.get(i).map(String::as_str).unwrap_or("");
-        let text = i.checked_sub(offset).and_then(|j| info.get(j)).map(String::as_str).unwrap_or("");
-        println!("{:<width$}   {}\x1B[K", art, text, width = art_width);
-    }
+    animation::run(&info);
 }
